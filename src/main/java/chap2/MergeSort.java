@@ -55,7 +55,6 @@ public class MergeSort<T extends Comparable<? super T>> {
             l1++;
             i++;
         }
-
         while (l2 <= end) {
             temp[i] = origin[l2];
             l2++;
@@ -63,8 +62,10 @@ public class MergeSort<T extends Comparable<? super T>> {
         }
 
         // copy temp to original array
-        // must copy temp to origin, otherwise the final array is wrong
-        // must use end index instead of j, otherwise the final array is wrong
+        // must copy temp to origin, otherwise the final array is wrong,
+        // since the next merge process need to use previous sorted array as input.
+        // must use end index instead of j, otherwise the final array is wrong,
+        // if we use j, every time it will copy starting from index 0, which is not always the cases.
         int numbers = end - start + 1;
         for (int j = 0; j < numbers; j++, end--)
             origin[end] = temp[end];
@@ -100,11 +101,57 @@ public class MergeSort<T extends Comparable<? super T>> {
 
 
         // copy temp to original array
-        // must copy temp to origin, otherwise the final array is wrong, but why?
-        // must use end index instead of j, otherwise the final array is wrong, but why?
+        // must copy temp to origin, otherwise the final array is wrong,
+        // since the next merge process need to use previous sorted array as input
+        // must use end index instead of j, otherwise the final array is wrong,
+        // if we use j, every time it will copy starting from index 0, which is not always the cases.
         int numbers = end - start + 1;
         for (int j = 0; j < numbers; j++, end--)
             origin[end] = temp[end];
+    }
+
+    /**
+     * recursively sort the array, use only the original array instead of assigning a temp array
+     * @param origin origin
+     * @param start start
+     * @param end end
+     */
+    public void recurSort(T[] origin, int start, int end) {
+        if (start < end) {
+            int mid = start + (end - start) / 2;
+            recurSort(origin, start, mid);
+            recurSort(origin, mid + 1, end);
+            mergeUseOnlyOriginalArray(origin, start, mid, end);
+        }
+    }
+
+    /**
+     * use only original array during merge process instead of assigning temp array
+     * @param origin original array
+     * @param start start index
+     * @param mid mid
+     * @param end end
+     */
+    private void mergeUseOnlyOriginalArray(T[] origin, int start, int mid, int end) {
+        int l1 = start, l2 = mid + 1;
+        // only merge elements to the first half, use index start and mid
+        // because during the merge process, the 'big' element in the first half has been moved to the second half
+        // and every time after the move, the second half will be sorted
+        // once the first half merge process completes, the whole array is sorted
+        for (int i = start; i <= mid; i++) {
+            // can use i instead of l1++, however using l1++ is easy to understand
+            if (origin[l2].compareTo(origin[l1++]) < 0) {
+                // move the 'big' element to the second half,
+                // store the 'small' element at the exact position
+                T temp = origin[i];
+                origin[i] = origin[l2];
+                origin[l2] = temp;
+
+                // since one element has been inserted into the second half, it might not be sorted
+                // therefore resort the second half for the next iterative call
+                recurSort(origin, mid + 1, end);
+            }
+        }
     }
 
     /**
@@ -119,11 +166,11 @@ public class MergeSort<T extends Comparable<? super T>> {
     }
 
     public static void main(String[] args) {
-        Integer[] origin = new Integer[]{3, 1, 28, 13, 17, 12, -6, 4, 9, 13, 28, 5, 7, 17, -18};
+        Integer[] origin = new Integer[]{3, 1, 28, 13, 17, 12, -6, 4, 9, 13, 28, 5, 7, 17, -18, -100, 32, 64, 39, -2};
         Integer[] temp = new Integer[15];
         MergeSort<Integer> mergeSort = new MergeSort<>();
 
-        mergeSort.recurSort(origin, temp, 0, origin.length - 1);
+        mergeSort.recurSort(origin, 0, origin.length - 1);
         mergeSort.printArray(origin);
     }
 }
