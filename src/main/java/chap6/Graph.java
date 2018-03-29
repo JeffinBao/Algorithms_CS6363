@@ -1,6 +1,6 @@
 package chap6;
 
-import java.util.List;
+import java.util.*;
 
 /**
  * Author: baojianfeng
@@ -10,10 +10,44 @@ import java.util.List;
 public class Graph {
     private List<Vertex> vertexList;
     private List<Edge> edgeList;
+    private Map<Vertex, List<Vertex>> adjVertexMap;
 
-    public Graph(List<Vertex> vertexList, List<Edge> edgeList) {
+    public Graph(List<Vertex> vertexList, List<Edge> edgeList, Map<Vertex, List<Vertex>> adjVertexMap) {
         this.vertexList = vertexList;
         this.edgeList = edgeList;
+        this.adjVertexMap = adjVertexMap;
+    }
+
+    /**
+     * check whether a graph is connected, using BSF
+     * @return true if the graph is connected
+     */
+    public boolean connectedBSF() {
+        // set to default value(false) before BSF operation, in order to make the vertex's initial status is not visited
+        for (Vertex vertex : vertexList) {
+            vertex.setVisited(false);
+        }
+
+        Vertex startVer = vertexList.get(0);
+        Queue<Vertex> queue = new LinkedList<>();
+        queue.add(startVer);
+
+        while (!queue.isEmpty()) {
+            Vertex vertex = queue.poll();
+            vertex.setVisited(true);
+            List<Vertex> adjList = adjVertexMap.get(vertex);
+            for (Vertex ver : adjList) {
+                if (!ver.getVisited()) // add not visited vertex to queue
+                    queue.add(ver);
+            }
+        }
+
+        for (Vertex vertex : vertexList) {
+            if (!vertex.getVisited())
+                return false;
+        }
+
+        return true;
     }
 
     public List<Vertex> getVertexList() {
@@ -24,11 +58,16 @@ public class Graph {
         return edgeList;
     }
 
+    public Map<Vertex, List<Vertex>> getAdjVertexMap() {
+        return adjVertexMap;
+    }
+
     /**
      * Vertex class, used to store the name of a vertex
      */
     public static class Vertex {
         String name;
+        boolean visited;
 
         Vertex(String name) {
             this.name = name;
@@ -36,6 +75,22 @@ public class Graph {
 
         public String getName() {
             return name;
+        }
+
+        /**
+         * whether a vertex has been visited when checking connectivity
+         * @param visited true if the vertex is visited
+         */
+        public void setVisited(boolean visited) {
+            this.visited = visited;
+        }
+
+        /**
+         * get the status whether a vertex is visited
+         * @return true if the vertex is visited
+         */
+        public boolean getVisited() {
+            return visited;
         }
 
         /**
@@ -53,6 +108,11 @@ public class Graph {
 
             Vertex vertex = (Vertex) obj;
             return this.name.equals(vertex.getName());
+        }
+
+        @Override
+        public int hashCode() {
+            return name.hashCode();
         }
     }
 
