@@ -156,9 +156,11 @@ public class Kruskals {
         }
 
         Graph graph = new Graph(vertexList, edgeList, adjVertexMap);
-        Kruskals kruskals = new Kruskals(graph);
-        List<Graph.Edge> mst = kruskals.getMiniSpanTreeAscend();
+//        Kruskals kruskals = new Kruskals(graph);
+//        List<Graph.Edge> mst = kruskals.getMiniSpanTreeAscend();
 //        List<Graph.Edge> mst = kruskals.getMiniSpanTreeDecend();
+        Prim prim = new Prim(graph);
+        List<Graph.Edge> mst = prim.getMiniSpanTree();
 
         double distSum = 0;
         for (Graph.Edge edge : mst) {

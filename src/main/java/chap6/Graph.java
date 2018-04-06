@@ -65,16 +65,56 @@ public class Graph {
     /**
      * Vertex class, used to store the name of a vertex
      */
-    public static class Vertex {
+    public static class Vertex implements Comparable<Vertex> {
         String name;
-        boolean visited;
+        Double key;  // distance between previous vertex and current vertex
+        Vertex prev; // previous vertex of current vertex
+        boolean visited; // whether current vertex is visited
 
         Vertex(String name) {
+            this(name, null, null);
+        }
+
+        Vertex(String name, Double key, Vertex prev) {
             this.name = name;
+            this.key = key;
+            this.prev = prev;
         }
 
         public String getName() {
             return name;
+        }
+
+        /**
+         * set the key(distance) of the current vertex
+         * @param key distance to previous vertex
+         */
+        public void setKey(Double key) {
+            this.key = key;
+        }
+
+        /**
+         * get the distance of the current vertex to previous vertex
+         * @return distance
+         */
+        public Double getKey() {
+            return key;
+        }
+
+        /**
+         * set the previous vertex of the current vertex
+         * @param prev previous vertex
+         */
+        public void setPrev(Vertex prev) {
+            this.prev = prev;
+        }
+
+        /**
+         * get the previous vertex of the current vertex
+         * @return previous vertex of the current vertex
+         */
+        public Vertex getPrev() {
+            return prev;
         }
 
         /**
@@ -91,6 +131,24 @@ public class Graph {
          */
         public boolean getVisited() {
             return visited;
+        }
+
+        /**
+         * compare current vertex with vertex o
+         * @param o vertex o
+         * @return 1 if current vertex's key is greater than o's key
+         *        -1 if current vertex's key is less than o's key
+         *         0 if they are equal to each other
+         */
+        @Override
+        public int compareTo(Vertex o) {
+            double diff = this.key - o.key;
+            if (diff > 0.0)
+                return 1;
+            else if (diff < 0.0)
+                return -1;
+            else
+                return 0;
         }
 
         /**
